@@ -41,8 +41,10 @@ extern "C" {
 
 #include "rapidxml.hpp"
 #include "objects.hpp"
+#include "blanktimer.hpp"
 
 extern int gGuiRunning;
+extern blanktimer blankTimer;
 
 std::map<std::string, PageSet*> PageManager::mPageSets;
 PageSet* PageManager::mCurrentSet;
@@ -353,9 +355,8 @@ int Page::Render(void)
     std::vector<RenderObject*>::iterator iter;
     for (iter = mRenders.begin(); iter != mRenders.end(); iter++)
     {
-        (*iter)->Render();
-	//if ((*iter)->Render())
-        //    LOGERR("A render request has failed.\n");
+        if ((*iter)->Render())
+            LOGERR("A render request has failed.\n");
     }
     return 0;
 }
@@ -891,6 +892,9 @@ int PageManager::Render(void)
 
 int PageManager::Update(void)
 {
+    if(blankTimer.IsScreenOff())
+        return 0;
+
     return (mCurrentSet ? mCurrentSet->Update() : -1);
 }
 
